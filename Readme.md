@@ -1,4 +1,5 @@
 # Node.js Design Patterns
+
 - Contains Summarised Notes from the Book Nodejs Design Patterns 3rd Edition [Link 📕](https://www.nodejsdesignpatterns.com/)
 
 # Chapter - 1 - The NodeJs Philosophy
@@ -35,24 +36,24 @@ eg: Using multiple threads to process multiple connections
   poll the resource within a loop until some actual data is returned. This is called <strong>busywaiting</strong>
 - Not Efficient, Huge Amount of wasted CPU time.
 
-```
-resources = [socketA, socketB, fileA]
+```js
+resources = [socketA, socketB, fileA];
 while (!resources.isEmpty()) {
-    for (resource of resources) {
-        // try to read
-        data = resource.read()
-        if (data === NO_DATA_AVAILABLE) {
-            // there is no data to read at the moment
-            continue
-        }
-        if (data === RESOURCE_CLOSED) {
-            // the resource was closed, remove it from the list
-            resources.remove(i)
-        } else {
-            //some data was received, process it
-            consumeData(data)
-        }
+  for (resource of resources) {
+    // try to read
+    data = resource.read();
+    if (data === NO_DATA_AVAILABLE) {
+      // there is no data to read at the moment
+      continue;
     }
+    if (data === RESOURCE_CLOSED) {
+      // the resource was closed, remove it from the list
+      resources.remove(i);
+    } else {
+      //some data was received, process it
+      consumeData(data);
+    }
+  }
 }
 ```
 
@@ -63,12 +64,12 @@ while (!resources.isEmpty()) {
   any of the watched resources are ready for read. When all the events are processed, the flow
   will block again on the event demultiplexer until new events are again
   available to be processed. This is called the <strong>event loop</strong>
-  ![Synchronous event demultiplexer](./img/Synchronous_event_demultiplexer.png)
+  <img src="https://raw.githubusercontent.com/nitiinkk/-Node.js-Design-Patterns/master/img/Synchronous_event_demultiplexer.png" alt="Synchronous_event_demultiplexer"/>
 
 ### The Reactor Pattern
 
 - Idea: To have a handler associated with each I/O operation, Handler : represented by callback /promises in Node.js.
-  ![Reactor Pattern](./img/reactor_pattern.png)
+  <img src="https://raw.githubusercontent.com/nitiinkk/-Node.js-Design-Patterns/master/img/reactor_pattern.png" alt="reactor_pattern">
 
 ### Libuv, the I/O engine of Node.js
 
@@ -101,19 +102,19 @@ while (!resources.isEmpty()) {
   namespacing.
 - To overcome this we have revealing module pattern.
 
-```
+```js
 const myModule = (() => {
- const privateFoo = () => {}
- const privateBar = []
- const exported = {
- publicFoo: () => {},
- publicBar: () => {}
- }
- return exported
-})() // once the parenthesis here are parsed, the function
- // will be invoked
-console.log(myModule)
-console.log(myModule.privateFoo, myModule.privateBar)
+  const privateFoo = () => {};
+  const privateBar = [];
+  const exported = {
+    publicFoo: () => {},
+    publicBar: () => {},
+  };
+  return exported;
+})(); // once the parenthesis here are parsed, the function
+// will be invoked
+console.log(myModule);
+console.log(myModule.privateFoo, myModule.privateBar);
 ```
 
 - The above fn is an IIFE(immediately invoked function expression) & used to create private scope, exporting only parts that are meant to be public.
@@ -122,9 +123,9 @@ console.log(myModule.privateFoo, myModule.privateBar)
 
 ### module.exports versus exports
 
-| S.no | Module.exports                                                                                                           | Exports                                                                                             |
-| ---- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| 1    | When we want to export a single class/variable/function from one module to another module, we use the module.exports way | When we want to export multiple variables/functions from one module to another, we use exports way. |
+| S.no | Module.exports | Exports |
+| ---: | -----------------------------------------------------------------------------------------------------------------------: | --------------------------------------------------------------------------------------------------: |
+| 1 | When we want to export a single class/variable/function from one module to another module, we use the module.exports way | When we want to export multiple variables/functions from one module to another, we use exports way. |
 
 ### Resolving alorithm
 
@@ -153,23 +154,23 @@ console.log(myModule.privateFoo, myModule.privateBar)
 
 Substack Pattern : reassigning the whole module.exports variable to a function.
 
-```
+```js
 module.exports = (message) => {
- console.log(`info: ${message}`)
-}
+  console.log(`info: ${message}`);
+};
 ```
 
 Named Export
 
-```
+```js
 module.exports.verbose = (message) => {
- console.log(`info: ${message}`)
-}
+  console.log(`info: ${message}`);
+};
 ```
 
 ### Exporting an instance
 
-```
+````js
 class Logger {
     constructor(name) {
         this.count = 0
@@ -182,28 +183,28 @@ class Logger {
 }
 
 module.exports = new Logger('DEFAULT')
-```
+```js
 
 Monkey Patching : A module can modify other modules or objects in the global scope;
 eg:
 
-```
+```js
 // file patcher.js
 // ./logger is another module
 
 require('./logger').customMessage = function () {
  console.log('This is a new functionality')
 }
-```
+````
 
 using new patcher module
 
-```
+```js
 // file main.js
 
-require('./patcher')
-const logger = require('./logger')
-logger.customMessage()
+require("./patcher");
+const logger = require("./logger");
+logger.customMessage();
 ```
 
 ### ESM: ECMAScript modules
@@ -212,22 +213,22 @@ logger.customMessage()
   are static, which means that imports are described at the top level of every module
   and outside any control flow statement.
 
-```
+```js
 //not valid code
 
 if (condition) {
- import module1 from 'module1'
+  import module1 from "module1";
 }
 ```
 
 - It's very important to note that, as opposed to CommonJS, with
   ESM we have to specify the file extension of the imported modules.
 
-```
+```js
 //to avoid nameclash we can import as below.
 
-import {log as log2} from './logger.js';
-log2('message from log2');
+import { log as log2 } from "./logger.js";
+log2("message from log2");
 ```
 
 ### Default exports and imports
@@ -235,8 +236,8 @@ log2('message from log2');
 - A default export makes use of the
   export default keywords and it looks like this
 
-```
-export default function hello () {}
+```js
+export default function hello() {}
 ```
 
 - In this case the `hello()` is ignored and entitiy exported is registered under the name default. `[Module] { default: [Function: hello] }`
@@ -244,45 +245,100 @@ export default function hello () {}
 - Import , we don't have to wrap the import name around brackets or use the
   as keyword when renaming.
 
-```
-import sayHello from './hello.js';
+```js
+import sayHello from "./hello.js";
 ```
 
 ### Async imports
 
+```js
+eg: import(translationModule).then((strings) => {
+  console.log(strings.HELLO);
+});
 ```
-eg:
-import(translationModule) 
-    .then((strings) => { 
-        console.log(strings.HELLO)
-    })
-```
+
 ### Read-only live bindings
+
 - Another fundamental characteristic of ES modules, which helps with cyclic
-dependencies, is the idea that imported modules are effectively read-only live
-bindings to their exported values.
-```
+  dependencies, is the idea that imported modules are effectively read-only live
+  bindings to their exported values.
+
+```js
 // counter.js
-export let count = 0
+export let count = 0;
 
 //main.js
-import { count, increment } from './counter.js';
+import { count, increment } from "./counter.js";
 
-console.log(count) // prints 0
-increment()
-console.log(count) // prints 1
-count++ // TypeError: Assignment to constant variable!
-
+console.log(count); // prints 0
+increment();
+console.log(count); // prints 1
+count++; // TypeError: Assignment to constant variable!
 ```
 
 ### Commonjs vs ESM
-| S.no | CommonJs                                                                                                         | ESM                                                                                             |
-| ---- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| 1    | doesnt run in strict mode | runs in strict mode. |
-| 2 |this equals exports | this is undefined|
-| 3 | we dont have read only bindings |  we have read only bindings| 
-| 4 | files by default is in cjs format | change file to .mjs / define type :module in packageJson| 
+
+| S.no |                          CommonJs |                                                      ESM |
+| ---: | --------------------------------: | -------------------------------------------------------: |
+|    1 |         doesnt run in strict mode |                                     runs in strict mode. |
+|    2 |               this equals exports |                                        this is undefined |
+|    3 |   we dont have read only bindings |                               we have read only bindings |
+|    4 | files by default is in cjs format | change file to .mjs / define type :module in packageJson |
+
 <br/>
 <hr/>
 
 # Chapter - 3 - Callbacks and Events
+
+- The most basic mechanism to get notified about
+  the completion of an asynchronous operation in Node.js is the callback, which
+  is nothing more than a function invoked by the runtime with the result of an
+  asynchronous operation.
+- The callback is the most basic building block on which all other asynchronous
+  mechanisms are based. In fact, without callbacks, we wouldn't have promises,
+  and therefore not even async/await; we also wouldn't have streams or events.
+- JS is ideal language for callbacks, as functions are first-class objects and can be easily assigned to variables, passed as
+  arguments, returned from another function invocation, or stored in data structures and closures.
+
+- The lesson to learn from the unleashing Zalgo is that it is important for
+  an API to clearly define its nature: either synchronous or asynchronous. As it becomes harder to figure out things.
+
+### Guaranteeing asynchronicity with deferred execution
+
+- it takes a callback as an argument and pushes it to the
+  top of the event queue, in front of any pending I/O event, and returns immediately.
+  The callback will then be invoked as soon as the currently running operation yields
+  control back to the event loop.
+- Another API for deferring the execution of code is setImmediate(). While its
+  purpose is very similar to that of process.nextTick(), its semantics are quite
+  different. Callbacks deferred with process.nextTick() are called microtasks
+  and they are executed just after the current operation completes, even before any
+  other I/O event is fired. With setImmediate(), on the other hand, the execution is
+  queued in an event loop phase that comes after all I/O events have been processed.
+- In async proper error propagation is done by simply passing
+  the error to the next callback in the chain.
+  eg :
+
+```js
+if (err) {
+  return cb(err);
+}
+```
+
+- It's important to understand that an uncaught exception leaves the application
+  in a state that is not guaranteed to be consistent, which can lead to unforeseeable
+  problems.
+- the process should exit immediately, optionally after having run
+  some necessary cleanup tasks
+
+```js
+process.on("uncaughtException", () => {
+  cleanupFn();
+  process.exit(1);
+});
+```
+
+### The Observer pattern
+
+- The Observer pattern defines an object (called subject) that can notify
+  a set of observers (or listeners) when a change in its state occurs.
